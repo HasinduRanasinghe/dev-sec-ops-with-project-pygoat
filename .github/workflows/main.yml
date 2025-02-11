@@ -43,12 +43,21 @@ jobs:
       - name: Build Docker Image
         run: docker build -f Dockerfile -t myapp:latest .
 
-      - name: Docker Scout Scan
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
-          sh install-scout.sh
-          
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+#      - name: Docker Scout Scan
+#        run: |
+#          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
+#          sh install-scout.sh
+#
+#          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+#
+#          docker scout quickview
+#          docker scout cves
 
-          docker scout quickview
-          docker scout cves
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Docker Scout Scan
+        uses: docker/scout-action@v1
+        with:
+          image: myapp:latest
+          token: ${{ secrets.DOCKERHUB_TOKEN }}
